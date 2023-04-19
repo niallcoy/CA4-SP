@@ -45,7 +45,7 @@ public class User {
         this.password = password;
     }
 
-    public void setEmployeeID(String employeeID) {
+    public void setAddress(String address) {
         this.address = address;
     }
 

@@ -34,8 +34,9 @@ public class UserRegister extends AppCompatActivity {
     private Button mRegisterButton;
     private TextView Register;
     private ProgressBar progressBar;
-
+    private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +46,10 @@ public class UserRegister extends AppCompatActivity {
         // Initialize Firebase auth and database reference
 
         FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
-        DatabaseReference databaseReference = firebaseSingleton.getReference("users");
+         databaseReference = firebaseSingleton.getReference("users");
 
         // Initialize views
+        mAuth = FirebaseAuth.getInstance();
         mNameEditText = findViewById(R.id.rName);
         mEmailEditText = findViewById(R.id.rEmail);
         mPasswordEditText = findViewById(R.id.rPassword);
@@ -67,59 +69,73 @@ public class UserRegister extends AppCompatActivity {
                 String address = mAddressEditText.getText().toString().trim();
 
                 // Validate input fields
-//                if (name.isEmpty()) {
-//                    mNameEditText.setError("Please enter your name");
-//                    mNameEditText.requestFocus();
-//                    return;
-//                }
-//                if (email.isEmpty()) {
-//                    mEmailEditText.setError("Please enter your email");
-//                    mEmailEditText.requestFocus();
-//                    return;
-//                }
-//                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-//                    mEmailEditText.setError("Please enter a valid email address");
-//                    mEmailEditText.requestFocus();
-//                    return;
-//                }
-//                if (password.isEmpty()) {
-//                    mPasswordEditText.setError("Please enter a password");
-//                    mPasswordEditText.requestFocus();
-//                    return;
-//                }
-//                if (address.isEmpty()) {
-//                    mAddressEditText.setError("Please enter your employee ID");
-//                    mAddressEditText.requestFocus();
-//                    return;
-//                }
+                if (name.isEmpty()) {
+                    mNameEditText.setError("Please enter your name");
+                    mNameEditText.requestFocus();
+                    return;
+                }
+                if (email.isEmpty()) {
+                    mEmailEditText.setError("Please enter your email");
+                    mEmailEditText.requestFocus();
+                    return;
+                }
+                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    mEmailEditText.setError("Please enter a valid email address");
+                    mEmailEditText.requestFocus();
+                    return;
+                }
+                if (password.isEmpty()) {
+                    mPasswordEditText.setError("Please enter a password");
+                    mPasswordEditText.requestFocus();
+                    return;
+                }
+                if (address.isEmpty()) {
+                    mAddressEditText.setError("Please enter your employee ID");
+                    mAddressEditText.requestFocus();
+                    return;
+                }
 
 
                 // Show progress bar
                 progressBar.setVisibility(View.VISIBLE);
 
-                User user = new User(name, email, address, password);
-                // Save user data to Firebase database
-                String userId = databaseReference.push().getKey();
-                databaseReference.child(userId).setValue(user)
-                        .addOnCompleteListener(task -> {
-                            progressBar.setVisibility(View.GONE);
-                            if (task.isSuccessful()) {
-                                Toast.makeText(UserRegister.this, "Registration successful", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(UserRegister.this, UserLogin.class);
-                                startActivity(intent);
-                            } else {
-                                Toast.makeText(UserRegister.this, "Registration failed", Toast.LENGTH_LONG).show();
-                            }
-                        });
+                mAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(UserRegister.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                User user = new User(name, email, address, password);
+                                  registerUser(user,mAuth.getUid());
+                            }});
 
-        // Set click listener for "no account" text view
-        Register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Navigate to user registration activity
-                Intent intent = new Intent(UserRegister.this, UserLogin.class);
-                startActivity(intent);
+
+                // Save user data to Firebase database
+
+
+
+                // Set click listener for "no account" text view
+                Register.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // Navigate to user registration activity
+                        Intent intent = new Intent(UserRegister.this, UserLogin.class);
+                        startActivity(intent);
+                    }
+                });
             }
         });
     }
-});}}
+
+    public void registerUser(User user,String userId){
+        databaseReference.child(userId).setValue(user)
+                .addOnCompleteListener(task -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(UserRegister.this, "Registration successful", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(UserRegister.this, UserLogin.class);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(UserRegister.this, "Registration failed", Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+}
