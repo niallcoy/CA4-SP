@@ -51,7 +51,7 @@ public class UserLogin extends AppCompatActivity {
 
         // Initialize Firebase authentication and database references
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseSingleton.getInstance().getReference("users");
 
         // Set click listener for login button
         mLoginButton.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +84,7 @@ public class UserLogin extends AppCompatActivity {
                                     // Sign in success, get user data from Firebase Realtime Database
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     if (user != null) {
-                                        mDatabase.child("user").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        mDatabase.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                                 // Hide progress bar

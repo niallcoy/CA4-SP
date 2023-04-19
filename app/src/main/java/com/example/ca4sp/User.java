@@ -3,17 +3,17 @@ package com.example.ca4sp;
 public class User {
     private String name;
     private String email;
-    private String id;
+    private String address;
     private String password;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public User(String name, String email, String id, String password) {
+    public User(String name, String email, String address, String password) {
         this.name = name;
         this.email = email;
-        this.id = id;
+        this.address = address;
         this.password = password;
     }
 
@@ -25,11 +25,29 @@ public class User {
         return email;
     }
 
-    public String getId() {
-        return id;
+    public String getAddress() {
+        return address;
     }
 
     public String getPassword() {
         return password;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setEmployeeID(String employeeID) {
+        this.address = address;
+    }
+
+
 }

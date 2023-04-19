@@ -36,8 +36,9 @@ public class AdminLogin extends AppCompatActivity {
         mLoginButton = findViewById(R.id.signIn);
         mNoAccountTextView = findViewById(R.id.noAccount);
 
-        // Initialize Firebase database reference using singleton
-       // mDatabase = AdminSingleton.getInstance().getReference().child("admin");
+        // Get a reference to the Firebase Realtime Database using the FirebaseSingleton
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        mDatabase = firebaseSingleton.getReference("Admins");
 
         // Set click listener for login button
         mLoginButton.setOnClickListener(new View.OnClickListener() {
@@ -81,11 +82,12 @@ public class AdminLogin extends AppCompatActivity {
                 });
             }
         });
-        // Set click listener for "no account" text view
+
+        // Set click listener for no account text view
         mNoAccountTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Navigate to user registration activity
+                // Navigate to admin registration activity
                 Intent intent = new Intent(AdminLogin.this, AdminRegister.class);
                 startActivity(intent);
             }

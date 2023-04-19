@@ -1,16 +1,23 @@
 package com.example.ca4sp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 //import com.example.finalca.UserSingleton;
@@ -25,7 +32,8 @@ public class UserRegister extends AppCompatActivity {
     private EditText mPasswordEditText;
     private EditText mAddressEditText;
     private Button mRegisterButton;
-    private ProgressBar mProgressBar;
+    private TextView Register;
+    private ProgressBar progressBar;
 
     private DatabaseReference mDatabase;
 
@@ -34,16 +42,20 @@ public class UserRegister extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_register);
 
+        // Initialize Firebase auth and database reference
+
+        FirebaseSingleton firebaseSingleton = FirebaseSingleton.getInstance();
+        DatabaseReference databaseReference = firebaseSingleton.getReference("users");
+
         // Initialize views
         mNameEditText = findViewById(R.id.rName);
         mEmailEditText = findViewById(R.id.rEmail);
         mPasswordEditText = findViewById(R.id.rPassword);
         mRegisterButton = findViewById(R.id.rRegisterBtn);
         mAddressEditText = findViewById(R.id.rAddress);
-        mProgressBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
+        Register = findViewById(R.id.title);
 
-        // Initialize Firebase database reference
-        mDatabase = FirebaseDatabase.getInstance().getReference(); // using singleton from AdminSingleton class
         // Set click listener for register button
         mRegisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,58 +67,59 @@ public class UserRegister extends AppCompatActivity {
                 String address = mAddressEditText.getText().toString().trim();
 
                 // Validate input fields
-                if (name.isEmpty()) {
-                    mNameEditText.setError("Please enter your name");
-                    mNameEditText.requestFocus();
-                    return;
-                }
-                if (email.isEmpty()) {
-                    mEmailEditText.setError("Please enter your email");
-                    mEmailEditText.requestFocus();
-                    return;
-                }
-                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    mEmailEditText.setError("Please enter a valid email address");
-                    mEmailEditText.requestFocus();
-                    return;
-                }
-                if (password.isEmpty()) {
-                    mPasswordEditText.setError("Please enter a password");
-                    mPasswordEditText.requestFocus();
-                    return;
-                }
-                if (address.isEmpty()) {
-                    mAddressEditText.setError("Please enter your employee ID");
-                    mAddressEditText.requestFocus();
-                    return;
-                }
+//                if (name.isEmpty()) {
+//                    mNameEditText.setError("Please enter your name");
+//                    mNameEditText.requestFocus();
+//                    return;
+//                }
+//                if (email.isEmpty()) {
+//                    mEmailEditText.setError("Please enter your email");
+//                    mEmailEditText.requestFocus();
+//                    return;
+//                }
+//                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+//                    mEmailEditText.setError("Please enter a valid email address");
+//                    mEmailEditText.requestFocus();
+//                    return;
+//                }
+//                if (password.isEmpty()) {
+//                    mPasswordEditText.setError("Please enter a password");
+//                    mPasswordEditText.requestFocus();
+//                    return;
+//                }
+//                if (address.isEmpty()) {
+//                    mAddressEditText.setError("Please enter your employee ID");
+//                    mAddressEditText.requestFocus();
+//                    return;
+//                }
 
-                // Create hashmap for admin data
-                HashMap<String, Object> UserMap = new HashMap<>();
-                UserMap.put("name", name);
-                UserMap.put("email", email);
-                UserMap.put("password", password);
-                UserMap.put("employeeID", address);
 
                 // Show progress bar
-                mProgressBar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
 
-                // Save data to Firebase Realtime Database
-                mDatabase.child("user").setValue(UserMap,  new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                        // Hide progress bar
-                        mProgressBar.setVisibility(View.GONE);
+                User user = new User(name, email, address, password);
+                // Save user data to Firebase database
+                String userId = databaseReference.push().getKey();
+                databaseReference.child(userId).setValue(user)
+                        .addOnCompleteListener(task -> {
+                            progressBar.setVisibility(View.GONE);
+                            if (task.isSuccessful()) {
+                                Toast.makeText(UserRegister.this, "Registration successful", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(UserRegister.this, UserLogin.class);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(UserRegister.this, "Registration failed", Toast.LENGTH_LONG).show();
+                            }
+                        });
 
-                        // Show toast message indicating success or failure
-                        if (databaseError == null) {
-                            Toast.makeText(UserRegister.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(UserRegister.this, "Registration failed: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        // Set click listener for "no account" text view
+        Register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Navigate to user registration activity
+                Intent intent = new Intent(UserRegister.this, UserLogin.class);
+                startActivity(intent);
             }
         });
     }
-}
+});}}
