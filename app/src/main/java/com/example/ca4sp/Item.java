@@ -75,4 +75,11 @@ public class Item {
     }
 
 
+    public String getImageUrl() {
+        return imageURL;
+    }
+
+    public String getItemId() {
+        return null;
+    }
 }
