@@ -21,11 +21,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
+    private List<Item> items;
 
-    private List<Item> itemList;
+    public ItemAdapter(List<Item> items) {
+        this.items = items;
+    }
 
-    public ItemAdapter(List<Item> itemList) {
-        this.itemList = itemList;
+    public void setItems(List<Item> items) {
+        this.items = items;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -37,23 +41,18 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Item item = itemList.get(position);
-
+        Item item = items.get(position);
         holder.titleTextView.setText(item.getTitle());
         holder.manufacturerTextView.setText(item.getManufacturer());
         holder.priceTextView.setText(String.valueOf(item.getPrice()));
         holder.categoryTextView.setText(item.getCategory());
         holder.quantityTextView.setText(String.valueOf(item.getQuantity()));
-        String image = item.getImageUrl();
-        int drawableResourceId = holder.itemView.getContext().getResources().getIdentifier(image,"drawable",holder.itemView.getContext().getPackageName());
-        holder.imageView.setImageResource(drawableResourceId);
-
+        Picasso.get().load(item.getImageURL()).into(holder.imageView);
     }
-
 
     @Override
     public int getItemCount() {
-        return itemList.size();
+        return items.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -71,3 +70,4 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         }
     }
 }
+

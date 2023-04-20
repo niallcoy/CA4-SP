@@ -9,26 +9,26 @@ import android.widget.Button;
 
 public class AdminHome extends AppCompatActivity {
     //Views
-    Button mUserBtn,mAdministratorBtn;
+    Button addItem,viewAllItems;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_admin_home);
         getSupportActionBar().hide();
 
-        mUserBtn=findViewById(R.id.userBtn);
-        mAdministratorBtn=findViewById(R.id.administratorBtn);
+        addItem=findViewById(R.id.addItemBtn);
+        viewAllItems=findViewById(R.id.viewAllItems);
 
-        mUserBtn.setOnClickListener(new View.OnClickListener() {
+        addItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(AdminHome.this, UserLogin.class)); // User activity
+                startActivity(new Intent(AdminHome.this, AddItem.class));
             }
         });
-        mAdministratorBtn.setOnClickListener(new View.OnClickListener() {
+        viewAllItems.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(AdminHome.this, AdminLogin.class)); //Admin activity
+                startActivity(new Intent(AdminHome.this, ItemList.class));
             }
         });
 
